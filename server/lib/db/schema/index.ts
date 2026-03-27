@@ -1,2 +1,2 @@
-export * from './modpacks';
-export * from './mods';
+export * from './mod';
+export * from './modpack';

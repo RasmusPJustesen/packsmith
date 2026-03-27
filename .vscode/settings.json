@@ -1,4 +1,80 @@
 {
+    // Let VS Code actually format on save
+    "editor.formatOnSave": true,
+
+    // Auto fix with ESLint on every save
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always",
+        "source.organizeImports": "never"
+    },
+
+    // ESLint flat config (ESLint 9 + eslint.config.mjs)
+    "eslint.useFlatConfig": true,
+
+    // Optional: make ESLint the default formatter
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+    "tailwindCSS.classAttributes": ["class", "ui"],
+    "tailwindCSS.experimental.classRegex": [
+        ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ],
+
+    // Silent the stylistic rules in your IDE, but still auto fix them
+    "eslint.rules.customizations": [
+        { "rule": "style/*", "severity": "off", "fixable": true },
+        { "rule": "format/*", "severity": "off", "fixable": true },
+        { "rule": "*-indent", "severity": "off", "fixable": true },
+        { "rule": "*-spacing", "severity": "off", "fixable": true },
+        { "rule": "*-spaces", "severity": "off", "fixable": true },
+        { "rule": "*-order", "severity": "off", "fixable": true },
+        { "rule": "*-dangle", "severity": "off", "fixable": true },
+        { "rule": "*-newline", "severity": "off", "fixable": true },
+        { "rule": "*quotes", "severity": "off", "fixable": true },
+        { "rule": "*semi", "severity": "off", "fixable": true },
+        { "rule": "*", "severity": "off", "fixable": true }
+    ],
+    "eslint.quiet": true,
+
+    // Enable eslint for all supported languages
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "jsonc",
+        "yaml",
+        "toml",
+        "xml",
+        "gql",
+        "graphql",
+        "astro",
+        "svelte",
+        "css",
+        "less",
+        "scss",
+        "pcss",
+        "postcss"
+    ],
+
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "html.format.wrapLineLength": 0,
+    "postman.settings.dotenv-detection-notification-visibility": false,
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
     "cSpell.words": [
         "curseforge",
         "modpack",

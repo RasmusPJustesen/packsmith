@@ -1,15 +1,17 @@
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-// import { user } from './auth';
+import { modpack } from './modpack';
 
-export const modpacks = sqliteTable('modpacks', {
+export const mod = sqliteTable('mod', {
     id: int().primaryKey({ autoIncrement: true }),
+    curseforgeId: int(),
     name: text().notNull(),
     slug: text().notNull().unique(),
-    description: text(),
-    // userId: int().notNull().references(() => user.id, { onDelete: "cascade" }),
+    currentMcVersionSupported: text(),
+    latestMcVersionSupported: text(),
+    lastCheckedAt: int(),
     createdAt: int().notNull().$default(() => Date.now()),
     updatedAt: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
-}, t => [
-    // unique().on(t.name, t.userId),
-]);
+
+    modpackId: int().notNull().references(() => modpack.id, { onDelete: 'cascade' }),
+});
