@@ -1,3 +1,4 @@
+/* eslint-disable style/no-tabs */
 // @ts-check
 import antfu from '@antfu/eslint-config';
 import withNuxt from './.nuxt/eslint.config.mjs';
@@ -11,7 +12,7 @@ export default withNuxt(antfu(
 			quotes: 'single',
 			semi: true,
 		},
-		ignores: ['.pnpm-store/**', '.github/workflows/**', '**/*.yaml'],
+		ignores: ['.pnpm-store/**', '.github/workflows/**', '**/*.yaml', '**/migrations/*'],
 	},
 	{
 		rules: {
