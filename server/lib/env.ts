@@ -6,6 +6,7 @@ const EnvSchema = z.object({
     NODE_ENV: z.string(),
     TURSO_DATABASE_URL: z.string(),
     TURSO_AUTH_TOKEN: z.string(),
+    CURSEFORGE_API_KEY: z.string(),
 
     // TODO: Add these back in when we add auth back in
     /* BETTER_AUTH_SECRET: z.string(),
