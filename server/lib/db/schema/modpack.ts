@@ -2,12 +2,12 @@ import type z from 'zod';
 import type { SelectMod } from './mod';
 
 import { relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { int, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 
 import { DescriptionSchema, McVersionSchema, NameSchema, ProviderIdSchema, ProviderSchema, UrlSchema, UuidSchema } from '../../../../shared/zod-schemas';
 
-// import { user } from './auth';
+import { user } from './auth';
 import { mod } from './mod';
 
 export const modpack = sqliteTable('modpack', {
@@ -24,17 +24,17 @@ export const modpack = sqliteTable('modpack', {
     updatedAt: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
 
     // relations
-    // userId: int().notNull().references(() => user.id, { onDelete: "cascade" }),
+    userId: int().notNull().references(() => user.id, { onDelete: 'cascade' }),
 }, t => [
-    // unique().on(t.name, t.userId),
+    unique().on(t.name, t.userId),
 ]);
 
 export const modpackRelations = relations(modpack, ({ many, one }) => ({
     mods: many(mod),
-    // user: one(user, {
-    //    fields: [modpack.userId],
-    //    references: [user.id],
-    // }),
+    user: one(user, {
+        fields: [modpack.userId],
+        references: [user.id],
+    }),
 }));
 
 export const InsertModpack = createInsertSchema(modpack, {
@@ -48,7 +48,7 @@ export const InsertModpack = createInsertSchema(modpack, {
     id: true,
     uuid: true,
     finalized: true,
-    // userId: true,
+    userId: true,
     createdAt: true,
     updatedAt: true,
 });

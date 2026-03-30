@@ -1,22 +1,18 @@
-import db from '~~/server/lib/db';
+import { removeModpackByUuid } from '~~/server/lib/db/queries/modpack';
 import defineAuthenticatedEventHandler from '~~/server/utils/defined-authenticated-event-handlers';
 
 export default defineAuthenticatedEventHandler(async (event) => {
     // await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate loading time
     const uuid = getRouterParam(event, 'uuid') as string;
-    const modpack = await db.query.modpack.findFirst({
-        where: (modpack, { eq }) => eq(modpack.uuid, uuid),
-        with: {
-            mods: true,
-        },
-    });
 
-    if (!modpack) {
+    const deleted = await removeModpackByUuid(uuid, event.context.user.id);
+
+    if (!deleted) {
         return sendError(event, createError({
             statusCode: 404,
-            statusMessage: 'modpack not found',
+            statusMessage: 'Modpack not found',
         }));
     }
 
-    return modpack;
+    return setResponseStatus(event, 204);
 });

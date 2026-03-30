@@ -9,6 +9,11 @@
 
             <template #right>
                 <UColorModeButton />
+                <UButton
+                    variant="soft"
+                    label="sign out"
+                    :to="{ name: 'signout' }"
+                />
             </template>
         </UHeader>
 

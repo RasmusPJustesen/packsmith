@@ -9,7 +9,9 @@ const uuid = route.params.uuid as string;
 
 const UButton = resolveComponent('UButton');
 
-const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
+const toast = useToast();
+
+ const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
 
 if (!modpack.value || error.value) {
     createError({
@@ -123,6 +125,28 @@ function onHover(_e: Event, row: TableRow<Mod> | null) {
 
     open.value = !!row;
 }
+
+async function deleteModpack() {
+    try {
+        await $fetch(`/api/modpacks/${uuid}`, {
+            method: 'DELETE',
+        });
+
+        toast.add({
+            title: 'Modpack deleted',
+            description: 'The modpack has been deleted successfully.',
+            color: 'success',
+        });
+
+        navigateTo({ name: 'dashboard' });
+    } catch (error) {
+        toast.add({
+            title: 'Error',
+            description: 'An error occurred while deleting the modpack.',
+            color: 'error',
+        });
+    }
+}
 </script>
 
 <template>
@@ -133,9 +157,17 @@ function onHover(_e: Event, row: TableRow<Mod> | null) {
             variant="link"
             :to="{ name: 'dashboard' }"
         />
-        <div>
-            <h1 class="text-xl font-bold">{{ modpack?.name }}</h1>
-            <p class="text-xs md:text-md text-muted">{{ modpack?.description }}</p>
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold">{{ modpack?.name }}</h1>
+                <p class="text-xs md:text-md text-muted">{{ modpack?.description }}</p>
+            </div>
+            <UButton
+                variant="subtle"
+                color="error"
+                icon="i-lucide-trash-2"
+                @click="deleteModpack"
+            />
         </div>
 
         <div class="flex flex-col flex-1 w-full">

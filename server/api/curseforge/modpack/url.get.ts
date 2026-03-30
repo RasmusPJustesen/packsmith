@@ -1,3 +1,5 @@
+import env from '~~/server/lib/env';
+
 export default defineEventHandler(async (event) => {
     const link = getQuery(event).link as string;
 
@@ -10,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
     const modpack = await $fetch<{ data: Array<any> }>(`https://api.curseforge.com/v1/mods/search?gameId=${gameId}&slug=${slug}`, {
         headers: {
-            'X-API-Key': process.env.CURSEFORGE_API_KEY || '', // TODO:: get the API KEY using env.ts
+            'X-API-Key': env.CURSEFORGE_API_KEY,
         },
     });
 

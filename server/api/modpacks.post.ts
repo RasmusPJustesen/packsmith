@@ -4,15 +4,15 @@ import defineAuthenticatedEventHandler from '~~/server/utils/defined-authenticat
 import { findModpackByName, findUniqueUuid, insertModpack } from '../lib/db/queries/modpack';
 import { InsertModpack } from '../lib/db/schema';
 import sendZodError from '../utils/send-zod.error';
-// defineAuthenticatedEventHandler
-export default defineEventHandler(async (event) => {
+
+export default defineAuthenticatedEventHandler(async (event) => {
     const result = await readValidatedBody(event, InsertModpack.safeParse);
 
     if (!result.success) {
         return sendZodError(event, result.error);
     }
-    /*  */
-    const existingModpack = await findModpackByName(result.data /* event.context.auth.userId */);
+
+    const existingModpack = await findModpackByName(result.data, event.context.user.id);
 
     if (existingModpack) {
         return sendError(event, createError({
@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
 
     const uuid = await findUniqueUuid(crypto.randomUUID());
 
-    try { /*  */
-        return insertModpack(result.data, uuid /* event.context.auth.userId */);
+    try {
+        return insertModpack(result.data, uuid, event.context.user.id);
     } catch (e) {
         const error = e as DrizzleError;
         console.error('INSERT ERROR: ', error.message);

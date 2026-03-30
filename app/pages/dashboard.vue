@@ -1,9 +1,19 @@
 <script setup lang="ts">
-const { data: modpacks, status, error, refresh } = await useFetch('/api/modpacks', {
+const { data: modpacks, refresh } = await useFetch('/api/modpacks', {
     transform: data => data.map(modpack => ({
         ...modpack,
         modsWithUpdates: modpack.mods.filter(mod => mod.currentMcVersionSupported !== mod.latestMcVersionSupported).length,
     })),
+});
+
+const search = ref('');
+
+const { data, status, error, execute, clear } = useFetch('/api/curseforge/search', {
+    query: {
+        query: search,
+    },
+    immediate: false,
+    watch: false,
 });
 </script>
 
@@ -40,5 +50,25 @@ const { data: modpacks, status, error, refresh } = await useFetch('/api/modpacks
                 </template>
             </UPageCard>
         </div>
+
+        <DevOnly>
+            <div>
+                <div class="flex justify-center">
+                    <UInput v-model="search" />
+                    <UButton label="Search" @click="() => execute()" />
+                    <UButton
+                        icon="i-lucide-x"
+                        variant="subtle"
+                        @click="() => clear()"
+                    />
+                </div>
+
+                <div v-if="status === 'pending'">Loading...</div>
+                <div v-else-if="error">Error: {{ error.message }}</div>
+                <div v-else-if="data">
+                    <pre>{{ data }}</pre>
+                </div>
+            </div>
+        </DevOnly>
     </div>
 </template>
