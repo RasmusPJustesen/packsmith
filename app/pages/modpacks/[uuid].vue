@@ -14,15 +14,16 @@ const toast = useToast();
  const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
 
 if (!modpack.value || error.value) {
-    showError({
+    createError({
         statusCode: 404,
         statusMessage: 'Modpack not found',
     });
+    await navigateTo({ name: 'error' });
 }
 
-const loading = computed(() => status.value === 'pending' || (modpack.value && modpack.value.finalized === 0));
-const disableAutoRefreshing = computed(() => modpack.value?.finalized === 0);
-const mods = computed(() => modpack.value?.mods || []);
+const loading = computed(() => status.value === 'pending' || (modpack.value && modpack.value.importStatus === 'pending'));
+const disableAutoRefreshing = computed(() => ['idle', 'error'].includes(modpack.value!.importStatus));
+const mods = computed(() => modpack.value!.mods || []);
 
 const currentTime = ref(new Date());
 const timeUntilNextCheck = computed(() => {
@@ -214,7 +215,7 @@ async function deleteModpack() {
                 @hover="onHover"
             >
                 <template #loading>
-                    <div v-if="modpack?.finalized === 0">
+                    <div v-if="modpack!.importStatus === 'pending'">
                         <span>Mods are being fetched. hold on</span>
                         <LoadingDots />
                     </div>

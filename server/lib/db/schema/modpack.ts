@@ -19,7 +19,10 @@ export const modpack = sqliteTable('modpack', {
     description: text(),
     url: text(),
     mcVersion: text(),
-    finalized: int().notNull().$default(() => 0),
+    importStatus: text().notNull().$default(() => 'idle'), // 'idle' | 'pending' | 'success' | 'error'
+    importTotal: int().notNull().$default(() => 0),
+    importProcessed: int().notNull().$default(() => 0),
+    importError: text(),
     createdAt: int().notNull().$default(() => Date.now()),
     updatedAt: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
 
@@ -47,7 +50,10 @@ export const InsertModpack = createInsertSchema(modpack, {
 }).omit({
     id: true,
     uuid: true,
-    finalized: true,
+    importStatus: true,
+    importTotal: true,
+    importProcessed: true,
+    importError: true,
     userId: true,
     createdAt: true,
     updatedAt: true,

@@ -31,7 +31,7 @@ export async function insertModpack(insertable: InsertModpack, uuid: string, use
     const [created] = await db.insert(modpack).values({
         ...insertable,
         uuid,
-        finalized: insertable.provider === 'custom' ? 1 : 0,
+        importStatus: insertable.provider === 'custom' ? 'done' : 'idle',
         userId,
     }).returning();
 

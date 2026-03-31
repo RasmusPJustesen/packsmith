@@ -35,10 +35,10 @@ const { data, status, error, execute, clear } = useFetch('/api/curseforge/search
                 <template #footer>
                     <div class="flex items-center justify-center gap-2">
                         <UButton
-                            v-if="modpack.finalized === 0"
+                            v-if="modpack.importStatus === 'pending'"
                             variant="subtle"
                             loading
-                            label="mods"
+                            label="importing mods..."
                         />
                         <UButton
                             v-else-if="modpack.modsWithUpdates > 0"

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "836f3686-f45c-49bc-b22b-86096d0ef919",
+  "id": "1e2b4a0b-56c1-4704-bf63-ee8c31328b4d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -510,11 +510,32 @@
           "notNull": false,
           "autoincrement": false
         },
-        "finalized": {
-          "name": "finalized",
+        "import_status": {
+          "name": "import_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "import_total": {
+          "name": "import_total",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "import_processed": {
+          "name": "import_processed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "import_error": {
+          "name": "import_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "created_at": {

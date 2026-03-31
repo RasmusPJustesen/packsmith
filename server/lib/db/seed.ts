@@ -25,23 +25,23 @@ async function seed() {
             {
                 name: 'Vanilla Enhanced',
                 description: 'A lightweight modpack that enhances vanilla Minecraft without changing the core experience.',
-                provider: 'CurseForge',
-                finalized: 1,
+                provider: 'curseforge/*  */',
                 providerId: 12345, // Example provider ID
+                userId: 1, // Example user ID
             },
             {
                 name: 'Tech Revolution',
                 description: 'A technology-focused modpack featuring automation, engineering, and advanced machinery.',
-                provider: 'CurseForge',
-                finalized: 1,
+                provider: 'curseforge/*  */',
                 providerId: 12345, // Example provider ID
+                userId: 1, // Example user ID
             },
             {
                 name: 'Magic & Adventure',
                 description: 'Explore mystical dimensions and master powerful spells in this magic-themed adventure pack.',
-                provider: 'CurseForge',
-                finalized: 1,
+                provider: 'curseforge/*  */',
                 providerId: 12345, // Example provider ID
+                userId: 1, // Example user ID
             },
         ]).returning();
 
