@@ -21,7 +21,7 @@ export default defineAuthenticatedEventHandler(async (event) => {
         }));
     }
 
-    const uuid = await findUniqueUuid(crypto.randomUUID());
+    const uuid = await findUniqueUuid(crypto.randomUUID(), event.context.user.id);
 
     try {
         return insertModpack(result.data, uuid, event.context.user.id);

@@ -5,12 +5,12 @@ import { and, eq } from 'drizzle-orm';
 import db from '..';
 import { modpack } from '../schema';
 
-export async function findUniqueUuid(uuid: string) {
-    let existing = !!(await findModpackByUuid(uuid));
+export async function findUniqueUuid(uuid: string, userId: number) {
+    let existing = !!(await findModpackByUuid(uuid, userId));
 
     while (existing) {
         const uuid = crypto.randomUUID();
-        existing = !!(await findModpackByUuid(uuid));
+        existing = !!(await findModpackByUuid(uuid, userId));
         if (!existing) {
             return uuid;
         }
@@ -51,8 +51,17 @@ export async function removeModpackByUuid(
     return removed;
 }
 
-export async function findModpackByUuid(uuid: string) {
+export async function findModpackByUuid(uuid: string, userId: number) {
     return db.query.modpack.findFirst({
-        where: eq(modpack.uuid, uuid),
+        where: and(
+            eq(modpack.uuid, uuid),
+            eq(modpack.userId, userId),
+        ),
+    });
+}
+
+export async function findModpacks(userId: number) {
+    return db.query.modpack.findMany({
+        where: eq(modpack.userId, userId),
     });
 }

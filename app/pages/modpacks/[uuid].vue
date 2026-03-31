@@ -14,7 +14,7 @@ const toast = useToast();
  const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
 
 if (!modpack.value || error.value) {
-    createError({
+    showError({
         statusCode: 404,
         statusMessage: 'Modpack not found',
     });
