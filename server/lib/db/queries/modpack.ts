@@ -31,7 +31,7 @@ export async function insertModpack(insertable: InsertModpack, uuid: string, use
     const [created] = await db.insert(modpack).values({
         ...insertable,
         uuid,
-        importStatus: insertable.provider === 'custom' ? 'done' : 'idle',
+        importStatus: insertable.provider === 'custom' ? 'success' : 'idle',
         userId,
     }).returning();
 
@@ -57,11 +57,17 @@ export async function findModpackByUuid(uuid: string, userId: number) {
             eq(modpack.uuid, uuid),
             eq(modpack.userId, userId),
         ),
+        with: {
+            mods: true,
+        },
     });
 }
 
 export async function findModpacks(userId: number) {
     return db.query.modpack.findMany({
         where: eq(modpack.userId, userId),
+        with: {
+            mods: true,
+        },
     });
 }

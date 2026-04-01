@@ -15,7 +15,6 @@
 
         <UMain class="p-4">
             <UContainer>
-                <pre>{{ session }}</pre>
                 <slot></slot>
             </UContainer>
         </UMain>

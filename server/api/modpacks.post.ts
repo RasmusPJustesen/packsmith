@@ -24,7 +24,21 @@ export default defineAuthenticatedEventHandler(async (event) => {
     const uuid = await findUniqueUuid(crypto.randomUUID(), event.context.user.id);
 
     try {
-        return insertModpack(result.data, uuid, event.context.user.id);
+        const modpack = await insertModpack(result.data, uuid, event.context.user.id);
+
+        if (modpack && modpack.importFileId) {
+            // Trigger import in background - using internal server call
+            $fetch(`/api/modpacks/${modpack.id}/import`, {
+                method: 'POST',
+                body: { fileId: modpack.importFileId },
+                headers: {
+                    // Pass authentication from the original request
+                    ...event.node.req.headers,
+                },
+            });
+        }
+
+        return modpack;
     } catch (e) {
         const error = e as DrizzleError;
         console.error('INSERT ERROR: ', error.message);

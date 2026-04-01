@@ -5,7 +5,7 @@ import { relations } from 'drizzle-orm';
 import { int, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 
-import { DescriptionSchema, McVersionSchema, NameSchema, ProviderIdSchema, ProviderSchema, UrlSchema, UuidSchema } from '../../../../shared/zod-schemas';
+import { DescriptionSchema, ImportFileIdSchema, McVersionSchema, NameSchema, ProviderIdSchema, ProviderSchema, UrlSchema } from '../../../../shared/zod-schemas';
 
 import { user } from './auth';
 import { mod } from './mod';
@@ -23,6 +23,7 @@ export const modpack = sqliteTable('modpack', {
     importTotal: int().notNull().$default(() => 0),
     importProcessed: int().notNull().$default(() => 0),
     importError: text(),
+    importFileId: int(),
     createdAt: int().notNull().$default(() => Date.now()),
     updatedAt: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
 
@@ -47,6 +48,7 @@ export const InsertModpack = createInsertSchema(modpack, {
     description: DescriptionSchema,
     url: UrlSchema,
     mcVersion: McVersionSchema,
+    importFileId: ImportFileIdSchema,
 }).omit({
     id: true,
     uuid: true,

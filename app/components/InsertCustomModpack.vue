@@ -25,6 +25,7 @@ async function handleSubmit() {
                 description: form.description,
                 mcVersion: form.mcVersion,
                 url: null,
+                importFileId: null,
             },
         });
 

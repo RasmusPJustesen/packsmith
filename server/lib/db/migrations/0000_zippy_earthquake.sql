@@ -79,6 +79,7 @@ CREATE TABLE `modpack` (
 	`import_total` integer NOT NULL,
 	`import_processed` integer NOT NULL,
 	`import_error` text,
+	`import_file_id` integer,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`user_id` integer NOT NULL,

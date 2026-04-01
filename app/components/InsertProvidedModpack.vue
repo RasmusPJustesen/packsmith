@@ -56,6 +56,7 @@ async function handleSubmit() {
                 url: form.url,
                 description: modpack.value.summary,
                 mcVersion: modpack.value.latestFilesIndexes[0]?.gameVersion || 'unknown',
+                importFileId: modpack.value.mainFileId || null,
             },
         });
 

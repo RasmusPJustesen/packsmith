@@ -7,3 +7,4 @@ export const ProviderIdSchema = z.number().int().positive('Provider ID must be a
 export const UuidSchema = z.uuid('UUID must be a valid UUID string');
 export const UrlSchema = z.url('URL must be a valid URL').or(z.null());
 export const McVersionSchema = z.string().min(1, 'Minecraft version is required').max(20, 'Minecraft version must be at most 20 characters');
+export const ImportFileIdSchema = z.int().positive('Import file ID must be a positive integer').or(z.null());

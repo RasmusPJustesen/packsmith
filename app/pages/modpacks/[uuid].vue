@@ -11,7 +11,7 @@ const UButton = resolveComponent('UButton');
 
 const toast = useToast();
 
- const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
+const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
 
 if (!modpack.value || error.value) {
     createError({
@@ -22,7 +22,7 @@ if (!modpack.value || error.value) {
 }
 
 const loading = computed(() => status.value === 'pending' || (modpack.value && modpack.value.importStatus === 'pending'));
-const disableAutoRefreshing = computed(() => ['idle', 'error'].includes(modpack.value!.importStatus));
+const disableAutoRefreshing = computed(() => ['idle', 'pending', 'error'].includes(modpack.value!.importStatus));
 const mods = computed(() => modpack.value!.mods || []);
 
 const currentTime = ref(new Date());
@@ -43,6 +43,17 @@ onMounted(() => {
     setInterval(() => {
         currentTime.value = new Date();
     }, 1000);
+
+    let getModsInterval: ReturnType<typeof setInterval>;
+    if (modpack.value && modpack.value.provider !== 'custom' && modpack.value.mods.length === 0) {
+        getModsInterval = setInterval(() => {
+            if (modpack.value!.mods.length !== 0) {
+                clearInterval(getModsInterval);
+            }
+
+            refresh();
+        }, 2000);
+    }
 });
 
 type Mod = NonNullable<typeof mods.value>[number];

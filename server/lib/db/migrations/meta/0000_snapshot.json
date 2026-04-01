@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1e2b4a0b-56c1-4704-bf63-ee8c31328b4d",
+  "id": "7c10356d-1018-4dd7-abde-d430b8fe2e14",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -534,6 +534,13 @@
         "import_error": {
           "name": "import_error",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "import_file_id": {
+          "name": "import_file_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

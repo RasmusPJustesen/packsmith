@@ -2,7 +2,7 @@
 const { data: modpacks, refresh } = await useFetch('/api/modpacks', {
     transform: data => data.map(modpack => ({
         ...modpack,
-        modsWithUpdates: modpack.mods.filter(mod => mod.currentMcVersionSupported !== mod.latestMcVersionSupported).length,
+        modsWithUpdates: modpack.mods ? modpack.mods.filter(mod => mod.currentMcVersionSupported !== mod.latestMcVersionSupported).length : 0,
     })),
 });
 
@@ -57,6 +57,7 @@ const { data, status, error, execute, clear } = useFetch('/api/curseforge/search
                     <UInput v-model="search" />
                     <UButton label="Search" @click="() => execute()" />
                     <UButton
+                        v-if="data"
                         icon="i-lucide-x"
                         variant="subtle"
                         @click="() => clear()"
