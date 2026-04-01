@@ -71,3 +71,11 @@ export async function findModpacks(userId: number) {
         },
     });
 }
+
+export async function updateModpackById(updates: any, id: number) {
+    const [updated] = await db.update(modpack).set(updates).where(
+        eq(modpack.id, id),
+    ).returning();
+
+    return updated;
+}

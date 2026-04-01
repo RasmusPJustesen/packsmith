@@ -4,12 +4,13 @@ import type { RowPinningState } from '@tanstack/table-core';
 import { refDebounced } from '@vueuse/core';
 import moment from 'moment';
 
+let getModsInterval: ReturnType<typeof setInterval>;
+
+const toast = useToast();
 const route = useRoute();
 const uuid = route.params.uuid as string;
 
 const UButton = resolveComponent('UButton');
-
-const toast = useToast();
 
 const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
 
@@ -22,8 +23,9 @@ if (!modpack.value || error.value) {
 }
 
 const loading = computed(() => status.value === 'pending' || (modpack.value && modpack.value.importStatus === 'pending'));
-const disableAutoRefreshing = computed(() => ['idle', 'pending', 'error'].includes(modpack.value!.importStatus));
+const disableAutoRefreshing = computed(() => !modpack.value ? true : ['idle', 'pending', 'error'].includes(modpack.value.importStatus));
 const mods = computed(() => modpack.value!.mods || []);
+const pendingMods = computed(() => mods.value.filter(mod => mod.name === 'importing...'));
 
 const currentTime = ref(new Date());
 const timeUntilNextCheck = computed(() => {
@@ -44,16 +46,21 @@ onMounted(() => {
         currentTime.value = new Date();
     }, 1000);
 
-    let getModsInterval: ReturnType<typeof setInterval>;
-    if (modpack.value && modpack.value.provider !== 'custom' && modpack.value.mods.length === 0) {
-        getModsInterval = setInterval(() => {
-            if (modpack.value!.mods.length !== 0) {
-                clearInterval(getModsInterval);
-            }
+    if (modpack.value && modpack.value.provider !== 'custom') {
+        if (mods.value.length === 0 || pendingMods.value.length > 0) {
+            getModsInterval = setInterval(() => {
+                if (mods.value.length > 0 && pendingMods.value.length === 0) {
+                    clearInterval(getModsInterval);
+                }
 
-            refresh();
-        }, 2000);
+                refresh();
+            }, 1000 * 5); // Every 5 seconds
+        }
     }
+});
+
+onUnmounted(() => {
+    clearInterval(getModsInterval);
 });
 
 type Mod = NonNullable<typeof mods.value>[number];
