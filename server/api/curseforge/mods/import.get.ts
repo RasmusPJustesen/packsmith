@@ -5,6 +5,8 @@ import env from '~~/server/lib/env';
 export default defineEventHandler(async (event) => {
     const mods = await findPendingMods();
 
+    const pendingModpacks = [];
+
     for (const mod of mods) {
         try {
             const result = await $fetch<any>(`https://api.curseforge.com/v1/mods/${mod.providerId}`, {
@@ -30,19 +32,37 @@ export default defineEventHandler(async (event) => {
 
             await updateModById(modData, mod.id);
 
-            // Update modpack import_processed
-            await updateModpackById({
-                importProcessed: (modpack.importProcessed ?? 0) + 1,
-                ...(modpack.importProcessed + 1 === modpack.importTotal
-                    ? { importStatus: 'success' }
-                    : {}),
-            }, modpack.id); // TODO:: BUG make sure importProcessed is not overwritten by concurrent updates - maybe move this logic to a separate function that calculates the new importStatus based on the number of processed mods?
-
-            // Process the result here
+            // Track modpack updates
+            const existingModpackIndex = pendingModpacks.findIndex(pm => pm.id === modpack.id);
+            if (existingModpackIndex !== -1) {
+                // Update existing modpack in array
+                pendingModpacks[existingModpackIndex].importProcessed += 1;
+            } else {
+                // Add new modpack to array
+                pendingModpacks.push({
+                    id: modpack.id,
+                    importProcessed: modpack.importProcessed + 1,
+                    importTotal: modpack.importTotal,
+                });
+            }
         } catch (error) {
             console.error(`Failed to fetch mod ${mod.providerId}:`, error);
             throw error;
         }
+    }
+
+    // Update all affected modpacks
+    for (const pendingModpack of pendingModpacks) {
+        const updates: any = {
+            importProcessed: pendingModpack.importProcessed,
+        };
+
+        // If all mods are processed, mark as success
+        if (pendingModpack.importProcessed === pendingModpack.importTotal) {
+            updates.importStatus = 'success';
+        }
+
+        await updateModpackById(updates, pendingModpack.id);
     }
 
     return setResponseStatus(event, 204);
