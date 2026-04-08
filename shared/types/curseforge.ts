@@ -86,6 +86,20 @@ export interface CurseForgeFileIndex {
     modLoader: number;
 }
 
+export interface CurseForgeServerAffiliation {
+    isEnabled: boolean;
+    isDefaultBanner: boolean;
+    hasDiscount: boolean;
+    affiliationService: number;
+    defaultBannerCustomTitle: string;
+    affiliationLink: string;
+}
+
+export interface CurseForgeSocialLink {
+    type: number;
+    url: string;
+}
+
 export interface CurseForgeModpack {
     screenshots: CurseForgeAsset[];
     id: number;
@@ -114,5 +128,38 @@ export interface CurseForgeModpack {
     isAvailable: boolean;
     hasCommentsEnabled: boolean;
     thumbsUpCount: number;
+    featuredProjectTag: number;
+}
+
+export interface CurseForgeMod {
+    screenshots: CurseForgeAsset[];
+    id: number;
+    gameId: number;
+    name: string;
+    slug: string;
+    links: CurseForgeLinks;
+    summary: string;
+    status: number;
+    downloadCount: number;
+    isFeatured: boolean;
+    primaryCategoryId: number;
+    categories: CurseForgeCategory[];
+    classId: number;
+    authors: CurseForgeAuthor[];
+    logo: CurseForgeAsset;
+    mainFileId: number;
+    latestFiles: CurseForgeFile[];
+    latestFilesIndexes: CurseForgeFileIndex[];
+    latestEarlyAccessFilesIndexes: CurseForgeFileIndex[];
+    dateCreated: string;
+    dateModified: string;
+    dateReleased: string;
+    allowModDistribution: boolean;
+    gamePopularityRank: number;
+    isAvailable: boolean;
+    hasCommentsEnabled: boolean;
+    thumbsUpCount: number;
+    serverAffiliation: CurseForgeServerAffiliation;
+    socialLinks: CurseForgeSocialLink[];
     featuredProjectTag: number;
 }

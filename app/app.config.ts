@@ -4,5 +4,10 @@ export default defineAppConfig({
             primary: 'lime',
             neutral: 'stone',
         },
+        selectMenu: {
+            slots: {
+                content: 'min-w-fit',
+            },
+        },
     },
 });

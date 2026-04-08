@@ -58,7 +58,11 @@ export async function findModpackByUuid(uuid: string, userId: number) {
             eq(modpack.userId, userId),
         ),
         with: {
-            mods: true,
+            mods: {
+                with: {
+                    mcVersions: true,
+                },
+            },
         },
     });
 }

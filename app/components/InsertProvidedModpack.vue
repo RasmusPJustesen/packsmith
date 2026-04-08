@@ -46,6 +46,9 @@ async function clearForm() {
 async function handleSubmit() {
     if (!modpack.value) return;
 
+    const modloader = modpack.value.latestFiles[0]?.sortableGameVersions.find((gv: CurseForgeSortableGameVersion) => gv.gameVersion === '')?.gameVersionName;
+    const mcVersion = modpack.value.latestFiles[0]?.sortableGameVersions.find((gv: CurseForgeSortableGameVersion) => gv.gameVersion !== '')?.gameVersion;
+
     try {
         const response = await $fetch('/api/modpacks', {
             method: 'POST',
@@ -55,7 +58,8 @@ async function handleSubmit() {
                 name: modpack.value.name,
                 url: form.url,
                 description: modpack.value.summary,
-                mcVersion: modpack.value.latestFilesIndexes[0]?.gameVersion || 'unknown',
+                mcVersion: mcVersion || 'unknown',
+                modloader: modloader || 'unknown',
                 importFileId: modpack.value.mainFileId || null,
             },
         });

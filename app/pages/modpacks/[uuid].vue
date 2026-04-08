@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import type { TableColumn, TableRow } from '@nuxt/ui';
-import type { RowPinningState } from '@tanstack/table-core';
-import { refDebounced } from '@vueuse/core';
-import moment from 'moment';
-
 let getModsInterval: ReturnType<typeof setInterval>;
 
 const toast = useToast();
 const route = useRoute();
 const uuid = route.params.uuid as string;
 
-const UButton = resolveComponent('UButton');
-
 const { data: modpack, status, error, refresh } = await useFetch(`/api/modpacks/${uuid}`);
+const { data: mcVersions, status: mcVersionsStatus, execute } = await useLazyFetch('/api/curseforge/mc-versions', {
+    method: 'GET',
+    immediate: false,
+    transform: res => res.data.map((version: any) => ({
+        label: version.versionString,
+        value: version.versionString,
+    })),
+});
 
 if (!modpack.value || error.value) {
     createError({
@@ -22,10 +23,12 @@ if (!modpack.value || error.value) {
     await navigateTo({ name: 'error' });
 }
 
-const loading = computed(() => status.value === 'pending' || (modpack.value && modpack.value.importStatus === 'pending'));
+const loading = computed(() => status.value === 'pending' || (modpack.value ? modpack.value.importStatus === 'pending' : false));
 const disableAutoRefreshing = computed(() => !modpack.value ? true : ['idle', 'pending', 'error'].includes(modpack.value.importStatus));
 const mods = computed(() => modpack.value!.mods || []);
 const pendingMods = computed(() => mods.value.filter(mod => mod.name === 'importing...'));
+
+const targetMcVersion = ref<string | null>(null);
 
 const currentTime = ref(new Date());
 const timeUntilNextCheck = computed(() => {
@@ -63,88 +66,6 @@ onUnmounted(() => {
     clearInterval(getModsInterval);
 });
 
-type Mod = NonNullable<typeof mods.value>[number];
-
-const columns: TableColumn<Mod>[] = [
-    {
-        accessorKey: 'name',
-        header: 'Name',
-    },
-    {
-        accessorKey: 'latestMcVersionSupported',
-        header: 'Latest Version',
-        cell: ({ row }) => {
-            const current = row.original.currentMcVersionSupported as string;
-            const latest = row.original.latestMcVersionSupported as string;
-
-            if (current === latest) {
-                return h('span', current);
-            }
-
-            return h('span', {
-                class: 'text-primary font-bold',
-            }, latest);
-        },
-    },
-    {
-        accessorKey: 'currentMcVersionSupported',
-        header: 'Current Version',
-    },
-    {
-        id: 'actions',
-        meta: {
-            class: {
-                th: 'text-right',
-                td: 'text-right',
-            },
-        },
-        cell: ({ row }) => row.getIsPinned()
-        ? h(UButton, {
-            color: 'success',
-            variant: 'subtle',
-            icon: 'i-lucide-badge-check',
-            label: 'New version',
-            to: row.original.url,
-            target: '_blank',
-        })
-: null,
-    },
-];
-
-const anchor = ref({ x: 0, y: 0 });
-
-const reference = computed(() => ({
-    getBoundingClientRect: () => ({
-        width: 0,
-        height: 0,
-        left: anchor.value.x,
-        right: anchor.value.x,
-        top: anchor.value.y,
-        bottom: anchor.value.y,
-        ...anchor.value,
-    }) as DOMRect,
-}));
-
-const open = ref(false);
-const openDebounced = refDebounced(open, 10);
-const selectedRow = ref<TableRow<Mod> | null>(null);
-const globalFilter = ref('');
-
-const rowPinning = computed<RowPinningState>(() => {
-    return {
-        top: mods.value
-            .filter(mod => mod.latestMcVersionSupported !== mod.currentMcVersionSupported)
-            .map(mod => String(mod.id)),
-        bottom: [],
-    };
-});
-
-function onHover(_e: Event, row: TableRow<Mod> | null) {
-    selectedRow.value = row;
-
-    open.value = !!row;
-}
-
 async function deleteModpack() {
     try {
         await $fetch(`/api/modpacks/${uuid}`, {
@@ -166,6 +87,12 @@ async function deleteModpack() {
         });
     }
 }
+
+function onOpen() {
+    if (!mcVersions.value?.length) {
+        execute();
+    }
+}
 </script>
 
 <template>
@@ -176,10 +103,28 @@ async function deleteModpack() {
             variant="link"
             :to="{ name: 'dashboard' }"
         />
-        <div class="flex items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl font-bold">{{ modpack?.name }}</h1>
-                <p class="text-xs md:text-md text-muted">{{ modpack?.description }}</p>
+        <div class="flex items-start justify-between gap-4">
+            <div class="space-y-2">
+                <div class="space-x-2">
+                    <UBadge
+                        v-if="modpack!.provider"
+                        color="secondary"
+                        size="sm"
+                        :label="modpack!.provider"
+                        variant="subtle"
+                    />
+                    <UBadge
+                        v-if="modpack!.mcVersion"
+                        color="info"
+                        size="sm"
+                        :label="modpack!.mcVersion"
+                        variant="subtle"
+                    />
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">{{ modpack!.name }}</h1>
+                    <p class="text-xs md:text-md text-muted">{{ modpack!.description }}</p>
+                </div>
             </div>
             <UButton
                 variant="subtle"
@@ -189,70 +134,37 @@ async function deleteModpack() {
             />
         </div>
 
-        <div class="flex flex-col flex-1 w-full">
-
-            <div class="flex justify-between gap-4 py-3.5 border-b border-accented">
-                <UInput
-                    v-model="globalFilter"
-                    class="max-w-sm"
-                    placeholder="Filter..."
-                />
-                <UButton
-                    class="group"
-                    icon="i-lucide-refresh-cw"
-                    variant="subtle"
-                    :disabled="disableAutoRefreshing"
-                    :loading="status === 'pending'"
-                    @click="() => refresh()"
-                >
-                    <div class="flex gap-1">
-                        <span class="hidden md:inline">Check</span>
-                        <span class="group-disabled:hidden">({{ timeUntilNextCheck }})</span>
-                    </div>
-                </UButton>
-            </div>
-
-            <UTable
-                v-model:row-pinning="rowPinning"
-                v-model:global-filter="globalFilter"
-                :get-row-id="(row: Mod) => String(row.id)"
-                :data="mods"
-                :columns="columns"
-                :loading="loading"
-                loading-animation="elastic"
-                class="flex-1"
-                :ui="{
-                    tbody: '[&>tr]:data-pinned:bg-elevated/50',
-                }"
-                @pointermove="
-                    (ev: PointerEvent) => {
-                        anchor.x = ev.clientX
-                        anchor.y = ev.clientY
-                    }
-                "
-                @hover="onHover"
+        <div class="flex justify-end gap-4 py-3.5">
+            <USelectMenu
+                v-model="targetMcVersion"
+                :items="mcVersions"
+                :loading="mcVersionsStatus === 'pending'"
+                placeholder="Target Minecraft version"
+                value-key="value"
+                virtualize
+                @update:open="onOpen"
+            />
+            <UButton
+                class="group"
+                icon="i-lucide-refresh-cw"
+                variant="subtle"
+                :disabled="disableAutoRefreshing"
+                :loading="status === 'pending'"
+                @click="() => refresh()"
             >
-                <template #loading>
-                    <div v-if="modpack!.importStatus === 'pending'">
-                        <span>Mods are being fetched. hold on</span>
-                        <LoadingDots />
-                    </div>
-                </template>
-            </UTable>
-
-            <UPopover
-                :content="{ side: 'top', sideOffset: 16, updatePositionStrategy: 'always' }"
-                :open="openDebounced"
-                :reference="reference"
-            >
-                <template #content>
-                    <div class="p-4">
-                        <span v-if="!selectedRow?.original.lastCheckedAt">Not checked yet.</span>
-                        <span v-else>Last checked: {{ moment(selectedRow?.original.lastCheckedAt).format('HH:mm') }}</span>
-                    </div>
-                </template>
-            </UPopover>
+                <div class="flex gap-1">
+                    <span class="hidden md:inline">Check</span>
+                    <span class="group-disabled:hidden">({{ timeUntilNextCheck }})</span>
+                </div>
+            </UButton>
         </div>
+
+        <ModsTable
+            :mods="mods"
+            :loading="loading"
+            :import-status="modpack!.importStatus"
+            :target-mc-version="targetMcVersion"
+        />
 
     </div>
 </template>

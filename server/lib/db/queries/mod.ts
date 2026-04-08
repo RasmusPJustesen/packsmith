@@ -4,12 +4,12 @@ import { and, eq } from 'drizzle-orm';
 import db from '..';
 import { mod } from '../schema';
 
-export function findPendingMods() {
+export function findPendingMods(limit: number = 10) {
     return db.query.mod.findMany({
         where: and(
             eq(mod.name, 'importing...'),
         ),
-        limit: 10,
+        limit,
         with: {
             modpack: true,
         },
@@ -22,4 +22,10 @@ export async function updateModById(updates: Partial<InsertMod>, id: number) {
     ).returning();
 
     return updated;
+}
+
+export async function insertMod(insertable: InsertMod) {
+    const [created] = await db.insert(mod).values(insertable).returning();
+
+    return created;
 }

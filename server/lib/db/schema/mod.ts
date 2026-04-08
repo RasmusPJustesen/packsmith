@@ -5,6 +5,7 @@ import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { NameSchema, ProviderIdSchema, ProviderSchema } from '../../../../shared/zod-schemas';
 
+import { mcVersion } from './mcVersion';
 import { modpack } from './modpack';
 
 export const mod = sqliteTable('mod', {
@@ -13,8 +14,6 @@ export const mod = sqliteTable('mod', {
     provider: text(),
     name: text().notNull(),
     url: text(),
-    currentMcVersionSupported: text(),
-    latestMcVersionSupported: text(),
     lastCheckedAt: int(),
     createdAt: int().notNull().$default(() => Date.now()),
     updatedAt: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
@@ -23,11 +22,12 @@ export const mod = sqliteTable('mod', {
     modpackId: int().notNull().references(() => modpack.id, { onDelete: 'cascade' }),
 });
 
-export const modRelations = relations(mod, ({ one }) => ({
+export const modRelations = relations(mod, ({ one, many }) => ({
     modpack: one(modpack, {
         fields: [mod.modpackId],
         references: [modpack.id],
     }),
+    mcVersions: many(mcVersion),
 }));
 
 export const InsertMod = createInsertSchema(mod, {

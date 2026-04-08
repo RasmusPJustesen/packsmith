@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7c10356d-1018-4dd7-abde-d430b8fe2e14",
+  "id": "c1d3664f-9446-4910-8e63-15f66693f94d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -350,6 +350,92 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "mc_version": {
+      "name": "mc_version",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "modloader": {
+          "name": "modloader",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mod_id": {
+          "name": "mod_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "modpack_id": {
+          "name": "modpack_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mc_version_mod_id_mod_id_fk": {
+          "name": "mc_version_mod_id_mod_id_fk",
+          "tableFrom": "mc_version",
+          "tableTo": "mod",
+          "columnsFrom": [
+            "mod_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mc_version_modpack_id_modpack_id_fk": {
+          "name": "mc_version_modpack_id_modpack_id_fk",
+          "tableFrom": "mc_version",
+          "tableTo": "modpack",
+          "columnsFrom": [
+            "modpack_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "mod": {
       "name": "mod",
       "columns": {
@@ -383,20 +469,6 @@
         },
         "url": {
           "name": "url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "current_mc_version_supported": {
-          "name": "current_mc_version_supported",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "latest_mc_version_supported": {
-          "name": "latest_mc_version_supported",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -505,6 +577,13 @@
         },
         "mc_version": {
           "name": "mc_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "modloader": {
+          "name": "modloader",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

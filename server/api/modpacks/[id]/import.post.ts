@@ -2,6 +2,8 @@ import { Buffer } from 'node:buffer';
 import AdmZip from 'adm-zip';
 import { eq } from 'drizzle-orm';
 import db from '~~/server/lib/db';
+import { insertMod } from '~~/server/lib/db/queries/mod';
+import { updateModpackById } from '~~/server/lib/db/queries/modpack';
 import { mod, modpack } from '~~/server/lib/db/schema';
 import env from '~~/server/lib/env';
 import defineAuthenticatedEventHandler from '~~/server/utils/defined-authenticated-event-handlers';
@@ -108,16 +110,16 @@ export default defineAuthenticatedEventHandler(async (event) => {
     }));
 
     if (modsToInsert.length > 0) {
-        await db.insert(mod).values(modsToInsert);
+        await Promise.all(modsToInsert.map(modData => insertMod(modData)));
     }
 
+    const importStatusChanges = {
+        importTotal: modsToInsert.length,
+        importStatus: 'pending',
+    };
+
     // Update modpack status
-    await db.update(modpack)
-        .set({
-            importStatus: 'pending',
-            importTotal: modsToInsert.length,
-        })
-        .where(eq(modpack.id, modpackId));
+    await updateModpackById(importStatusChanges, modpackId);
 
     return {
         success: true,

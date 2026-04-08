@@ -5,6 +5,10 @@
                 <NuxtLink to="/">
                     <AppLogo class="w-auto h-6 shrink-0" />
                 </NuxtLink>
+
+                <DevOnly>
+                    <DevTriggerCronjob />
+                </DevOnly>
             </template>
 
             <template #right>

@@ -51,14 +51,24 @@ CREATE TABLE `verification` (
 );
 --> statement-breakpoint
 CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);--> statement-breakpoint
+CREATE TABLE `mc_version` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`version` text NOT NULL,
+	`modloader` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`mod_id` integer,
+	`modpack_id` integer,
+	FOREIGN KEY (`mod_id`) REFERENCES `mod`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`modpack_id`) REFERENCES `modpack`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `mod` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`provider_id` integer,
 	`provider` text,
 	`name` text NOT NULL,
 	`url` text,
-	`current_mc_version_supported` text,
-	`latest_mc_version_supported` text,
 	`last_checked_at` integer,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
@@ -75,6 +85,7 @@ CREATE TABLE `modpack` (
 	`description` text,
 	`url` text,
 	`mc_version` text,
+	`modloader` text,
 	`import_status` text NOT NULL,
 	`import_total` integer NOT NULL,
 	`import_processed` integer NOT NULL,
