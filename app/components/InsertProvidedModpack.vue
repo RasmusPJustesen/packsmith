@@ -59,6 +59,7 @@ async function handleSubmit() {
                 url: form.url,
                 description: modpack.value.summary,
                 mcVersion: mcVersion || 'unknown',
+                targetMcVersion: mcVersion || null,
                 modloader: modloader || 'unknown',
                 importFileId: modpack.value.mainFileId || null,
             },

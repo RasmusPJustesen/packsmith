@@ -25,10 +25,10 @@ if (!modpack.value || error.value) {
 
 const loading = computed(() => status.value === 'pending' || (modpack.value ? modpack.value.importStatus === 'pending' : false));
 const disableAutoRefreshing = computed(() => !modpack.value ? true : ['idle', 'pending', 'error'].includes(modpack.value.importStatus));
-const mods = computed(() => modpack.value!.mods || []);
-const pendingMods = computed(() => mods.value.filter(mod => mod.name === 'importing...'));
+const mods = computed(() => modpack.value!.mods.filter(mod => mod.url?.includes('mc-mods')));
+const pendingMods = computed(() => modpack.value!.mods.filter(mod => mod.name === 'importing...'));
 
-const targetMcVersion = ref<string | null>(null);
+const targetMcVersion = ref<string | null>(modpack.value?.targetMcVersion || null);
 
 const currentTime = ref(new Date());
 const timeUntilNextCheck = computed(() => {
@@ -93,6 +93,31 @@ function onOpen() {
         execute();
     }
 }
+
+async function handleModpackUpdate(mcVersion: string) {
+    try {
+        await $fetch(`/api/modpacks/${uuid}`, {
+            method: 'PUT',
+            body: {
+                providerId: modpack.value!.providerId,
+                provider: modpack.value!.provider,
+                name: modpack.value!.name,
+                description: modpack.value!.description,
+                url: modpack.value!.url,
+                mcVersion: modpack.value!.mcVersion,
+                modloader: modpack.value!.modloader,
+                importFileId: modpack.value!.importFileId,
+                targetMcVersion: mcVersion,
+            },
+        });
+    } catch (error) {
+        toast.add({
+            title: 'Error',
+            description: 'An error occurred while updating the modpack.',
+            color: 'error',
+        });
+    }
+}
 </script>
 
 <template>
@@ -143,6 +168,7 @@ function onOpen() {
                 value-key="value"
                 virtualize
                 @update:open="onOpen"
+                @update:model-value="handleModpackUpdate"
             />
             <UButton
                 class="group"
@@ -161,10 +187,10 @@ function onOpen() {
 
         <ModsTable
             :mods="mods"
+            :modpack="modpack"
             :loading="loading"
             :import-status="modpack!.importStatus"
             :target-mc-version="targetMcVersion"
         />
-
     </div>
 </template>

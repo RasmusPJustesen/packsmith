@@ -1,0 +1,1 @@
+ALTER TABLE `modpack` ADD `target_mc_version` text;
